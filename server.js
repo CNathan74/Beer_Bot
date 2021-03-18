@@ -1,3 +1,6 @@
+//Récupération du fichier .env
+require('dotenv').config();
+
 //Création du client discord
 const Discord = require('discord.js');
 const clientDiscord = new Discord.Client();
@@ -14,11 +17,13 @@ const regexHTTPs = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\
 //Connexion à la base de données
 mongoConnection();
 
+//Connexion au bot discord
+clientDiscord.login(process.env.DISCORD_TOKEN);
+
 //Démarrage du bot discord
 clientDiscord.on("ready", function () {
-    console.log("Beer BOT prêt au combat");
+    console.log("Beer BOT est prêt au combat");
 })
-
 
 //Événement réception message sur le serveur discord
 clientDiscord.on("message", function (message) {
