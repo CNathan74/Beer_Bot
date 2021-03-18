@@ -45,7 +45,7 @@ async function mongoConnection(){
 }
 
 //Permet de vérifier si la base de donnée existe.
-//Retourne true si elle existe, false sinon
+//Retourne true si existe, false sinon
 async function dbConnection(client){
     var result = false;
 
