@@ -7,7 +7,7 @@ Il est disponible sur ce serveur discord : https://discord.gg/h5AyRACc
 Avec un peu de change, j'aurais eu le temps de le déployer avant. Mais si ce n'est pas le cas :
 Il suffit de cloner le projet
 Renommer le .env.txt en .env 
-Ajouter `DISCORD_TOKEN = ODIwNzg0MzkzMDgwNTM3MTE4.YE6NCA.wrMvT4dNrSlSkNAikiO-gIxhWvk`
+Pour `DISCORD_TOKEN` venez en mp Discord et je vous l'envoi
 Remplir `MONGODB = adresse:port`
 Créer une database dans MongoDB `beer_bot` avec une collection `beers` 
 Ensuite lancer le bot avec la commande `node server.js`
