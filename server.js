@@ -12,7 +12,7 @@ var channel = null
 
 //Création du client Mongo
 const dbMongo = 'beer_bot';
-const urlMongo = 'mongodb://localhost:27017';
+const urlMongo = 'mongodb://' + process.env.MONGODB;
 const clientMongo = require('mongodb').MongoClient;
 const MongoClient = new clientMongo(urlMongo/*,
     { useNewUrlParser: true, useUnifiedTopology: true }*/);
