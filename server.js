@@ -41,6 +41,10 @@ var addBeerEnCours = false
 var addBeerEtape = 0
 var addBeerObj
 
+var removeBeerEnCours = false
+var removeBeerEtape = 0
+var removeBeerID
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// TRAITEMENT MESSAGES DISCORD /////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,17 +58,29 @@ clientDiscord.on("message", function (message) {
         if (addBeerEnCours) {
             addBeer(message.content);
         }
+        else if(removeBeerEnCours)
+        {
+            removeBeer(message.content)
+        }
         //Intéraction classique (getBeer, lancement addBeer, ...)
         else {
             if (message.content.startsWith(cmdDiscord + "all") === true) {
                 getAllBeers();
             }
-            if (message.content.startsWith(cmdDiscord + "add") === true) {
-                if (channel.id === "821381689992282174") {
+            else if (message.content.startsWith(cmdDiscord + "add") === true) {
+                if (channel.id === "825842123613667358") {
                     addBeerEnCours = true
                     addBeer()
                 } else {
-                    channel.send("Merci d'utiliser le salon #add pour ajouter une bière")
+                    channel.send("Merci d'utiliser le salon **#add** pour ajouter une bière")
+                }
+            }
+            else if (message.content.startsWith(cmdDiscord + "remove") === true) {
+                if (channel.id === "825842138494533633") {
+                    removeBeerEnCours = true
+                    removeBeer(message.content.substring((cmdDiscord + "remove").length + 1))
+                } else {
+                    channel.send("Merci d'utiliser le salon **#remove** pour supprimer une bière")
                 }
             }
         }
@@ -109,6 +125,10 @@ async function dbConnection(client){
         }
     });
     return result;
+}
+
+function getBeersByName(name){
+
 }
 
 function getBeerByID(id){
@@ -215,6 +235,25 @@ function addBeer(message = null){
             break
 
 
+    }
+}
+
+function removeBeer(message){
+    switch (removeBeerEtape){
+        case 0:
+            var beers = db.collection('beers').find({name : message});
+            if(beers.size > 1){
+                channel.send("Voulez vous supprimer cette bière ? Répondre avec '**yes**' ou '**no**'")
+                removeBeerEtape = 1
+            }
+            else{
+                channel.send("Plusieurs bières ont le même nom, merci de renseigner l'id de celle à supprimer")
+            }
+            beers.forEach(function (beer) {
+                channel.send("ID : " + beer._id)
+                displayBeer(beer)
+            })
+            break
     }
 }
 
