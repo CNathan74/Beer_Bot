@@ -23,6 +23,8 @@ var ObjectId = require('mongodb').ObjectId
 //Regex pour vérifier le format d'une url
 const regexHTTPs = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/gm;
 
+//Commande discord pour utiliser le bot
+const cmdDiscord = "beer!"
 //Connexion à la base de données
 mongoConnection();
 
@@ -34,16 +36,40 @@ clientDiscord.on("ready", function () {
     console.log("Beer BOT est prêt au combat");
 })
 
+//Variables de travail
+var addBeerEnCours = false
+var addBeerEtape = 0
+var addBeerObj
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// TRAITEMENT MESSAGES DISCORD /////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Événement réception message sur le serveur discord
 clientDiscord.on("message", function (message) {
-    channel = message.channel
-    if (message.content.startsWith("beer!all") === true){
-        getAllBeers();
+    //Si le message ne vient pas du bot
+    if(message.author.id !== "820784393080537118") {
+        channel = message.channel
+        //Si on est entrain d'ajouter une bière
+        if (addBeerEnCours) {
+            addBeer(message.content);
+        }
+        //Intéraction classique (getBeer, lancement addBeer, ...)
+        else {
+            if (message.content.startsWith(cmdDiscord + "all") === true) {
+                getAllBeers();
+            }
+            if (message.content.startsWith(cmdDiscord + "add") === true) {
+                if (channel.id === "821381689992282174") {
+                    addBeerEnCours = true
+                    addBeer()
+                } else {
+                    channel.send("Merci d'utiliser le salon #add pour ajouter une bière")
+                }
+            }
+        }
     }
+
 })
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +126,103 @@ function getAllBeers(){
     })
 }
 
+function addBeer(message = null){
+    switch (addBeerEtape) {
+        case 0:
+            cleanChannel(channel)
+            addBeerObj = new Object()
+            channel.send("Nous allons ajouter une bière ensemble")
+            channel.send("Commençons par son **nom** :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 1:
+            addBeerObj.name = message
+            channel.send("Maintenant quelques informations sur la **brasserie**")
+            channel.send("Pour commencer, le **nom** :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 2:
+            Object.assign(addBeerObj, {
+                brasserie: {
+                    name: message
+                }
+            })
+            channel.send("L'adresse du **site web** (mettre **#** sinon) :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 3:
+            addBeerObj.brasserie.site = message
+            channel.send("Pour finir, le **logo de la brasserie** (mettre **#** sinon) :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 4:
+            addBeerObj.brasserie.logo = message
+            channel.send("Très bien, revenons sur notre bière maintenant")
+            channel.send("Il me faut la **couleur** :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 5:
+            addBeerObj.color = message
+            channel.send("Une petite **description** :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 6:
+            addBeerObj.description = message
+            channel.send("Les **degrés** d'alcool :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 7:
+            addBeerObj.degre = message
+            channel.send("C'est bientôt fini, le **prix** :")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 8:
+            addBeerObj.price = message
+            channel.send("Et la cerise sur le gâteau, une **photo de la bouteille** (mettre **#** sinon) : ")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 9:
+            addBeerObj.image = message
+            channel.send("Parfait, voilà le résultat : ")
+            displayBeer(addBeerObj)
+            channel.send("Si tu veux enregistrer cette bière, répond par '**yes**', sinon par '**no**'")
+            addBeerEtape = addBeerEtape + 1
+            break
+        case 10:
+            if(message === "yes" || message === "y") {
+                addBeerEtape = 0
+                addBeerEnCours = false
+                cleanChannel(channel)
+                db.collection("beers").insertOne(addBeerObj, function(err, res) {
+                    if (err){
+                        channel.send("Échec de l'ajout d'une bière")
+                    }
+                    else{
+                        channel.send("Bière enregistrer")
+                    }
+                });
+            }
+            else if(message === "no" || message === "n"){
+                addBeerEtape = 0
+                addBeerEnCours = false
+                cleanChannel(channel)
+                channel.send("Bière annulée")
+            }
+            else {
+                channel.send("Réponse incorrect **'" + message + "'**" )
+                channel.send("Si tu veux enregistrer cette bière, répond par '**yes**', sinon par '**no**'")
+            }
+            break
+
+
+    }
+}
+
+//Permet de vider les 100 derniers messages du salon
+function cleanChannel(c){
+    c.bulkDelete(100);                //Pour vider le salon add
+}
+
 async function displayBeer(beer){
     let ContentEmbed = new Discord.MessageEmbed();
     ContentEmbed.setTitle(beer.name)
@@ -120,3 +243,4 @@ async function displayBeer(beer){
     }
     channel.send(ContentEmbed)
 }
+
