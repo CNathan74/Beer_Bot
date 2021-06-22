@@ -2,7 +2,7 @@
 ## Présentation
 Bienvenu sur BeerBot, voilà quelques informations pratiques : 
 ### Où tester BeerBot ?
-Il est disponible sur ce serveur discord : https://discord.gg/h5AyRACc
+Il est disponible sur ce serveur discord : https://discord.gg/aMHdjJu9A6
 ### Comment utiliser BeerBot si il est hors ligne ?
 Avec un peu de change, j'aurais eu le temps de le déployer avant. Mais si ce n'est pas le cas :
 Il suffit de cloner le projet
